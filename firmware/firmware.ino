@@ -1,5 +1,5 @@
 // Elemental USB Gateway firmware
-// Updated on 12/22/2019
+// Updated on 01/20/2020
 
 #include <RFM69.h>         //http://github.com/lowpowerlab/rfm69
 //#include <SPIFlash.h>      //http://github.com/lowpowerlab/spiflash
@@ -20,10 +20,11 @@ char data[100];
 char dataPacket[150];
 char _rssi[5];
 char _i[4];
+int test = 0;
 
 void setup()
 {
-  pinMode(10, OUTPUT);
+//  pinMode(10, OUTPUT);
   Serial.begin(SERIAL_BAUD);
 
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
@@ -40,13 +41,17 @@ void loop()
   {
     int rssi = radio.RSSI;
     int nodeID = radio.SENDERID;
+    
+    data[0] = 0; // clear array by adding a null character
 
     if (radio.DATALEN > 0)
     {
       for (byte i = 0; i < radio.DATALEN; i++)
         data[i] = (char)radio.DATA[i];
     }
-    
+
+    data[sizeof(data)] = 0; // add null character to the end of data array
+
     if (radio.ACKRequested())
     {
       radio.sendACK();
@@ -54,22 +59,21 @@ void loop()
       dtostrf(nodeID, 1, 0, _i);
       dtostrf(rssi, 3, 0, _rssi);
 
-      dataPacket[0] = 0;  // first value of dataPacket should be a 0
+      dataPacket[0] = 0;  // first value of dataPacket should be a 0 (null) to clear it
       strcat(dataPacket, "i:");
       strcat(dataPacket, _i);  // append node ID
       strcat(dataPacket, ",");
       strcat(dataPacket, data);  // append actual data
       strcat(dataPacket, ",r:");
       strcat(dataPacket, _rssi); // append RSSI
-      
+   
       Serial.println(dataPacket);
-      delay(1);
+      Blink(LED,5);
 
       memset(data, 0, sizeof data);   // clear array
       memset(dataPacket, 0, sizeof dataPacket);   // clear array
+      memset(_i, 0, sizeof _i);
       memset(_rssi, 0, sizeof _rssi);
-
-      Blink(LED,5);
     }
   }
 }
