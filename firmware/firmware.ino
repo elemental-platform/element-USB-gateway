@@ -1,9 +1,15 @@
 // Elemental USB Gateway firmware
-// Updated on 01/20/2020
+// Updated on 01/22/2020
+
+//*****************************************************************************************************************************
+// libraries in use
 
 #include <RFM69.h>         //http://github.com/lowpowerlab/rfm69
 //#include <SPIFlash.h>      //http://github.com/lowpowerlab/spiflash
 #include <SPI.h>           
+
+//*****************************************************************************************************************************
+// configurable global variables
 
 #define ENCRYPTKEY    "Tt-Mh=SQ#dn#JY3_" //has to be same 16 characters/bytes on all nodes, not more not less!
 #define NODEID        1
@@ -12,15 +18,16 @@
 #define IS_RFM69HW    //uncomment only for RFM69HW! Leave out if you have RFM69W!
 #define LED           9
 #define SERIAL_BAUD   115200
-//*****************************************************************************************************************************
 
+// other global variables and objects
 RFM69 radio;
 //SPIFlash flash(FLASH_CS, 0xEF30); //EF40 for 16mbit windbond chip
 char data[100];
 char dataPacket[150];
 char _rssi[5];
 char _i[4];
-int test = 0;
+
+//*****************************************************************************************************************************
 
 void setup()
 {
@@ -33,7 +40,11 @@ void setup()
 #endif
   radio.encrypt(ENCRYPTKEY);
   //flash.initialize();
+
+  fadeLED(LED);
 }
+
+//*****************************************************************************************************************************
 
 void loop()
 {
@@ -56,7 +67,7 @@ void loop()
     {
       radio.sendACK();
 
-      dtostrf(nodeID, 1, 0, _i);
+      dtostrf(nodeID, 1, 0, _i);  // convert decimal to string; 1 is minimal width, 0 is decimal precision
       dtostrf(rssi, 3, 0, _rssi);
 
       dataPacket[0] = 0;  // first value of dataPacket should be a 0 (null) to clear it
@@ -66,17 +77,21 @@ void loop()
       strcat(dataPacket, data);  // append actual data
       strcat(dataPacket, ",r:");
       strcat(dataPacket, _rssi); // append RSSI
-   
-      Serial.println(dataPacket);
-      Blink(LED,5);
 
-      memset(data, 0, sizeof data);   // clear array
-      memset(dataPacket, 0, sizeof dataPacket);   // clear array
+      Serial.println(dataPacket); // send packet over serial
+      Blink(LED,5);   // blink LED to indicate packet receive and send + give delay to let serial complete sending
+
+      // clear all char arrays
+      memset(data, 0, sizeof data);
+      memset(dataPacket, 0, sizeof dataPacket);
       memset(_i, 0, sizeof _i);
       memset(_rssi, 0, sizeof _rssi);
     }
   }
 }
+
+//*****************************************************************************************************************************
+// Blink LED
 
 void Blink(byte PIN, int DELAY_MS)
 {
@@ -85,3 +100,30 @@ void Blink(byte PIN, int DELAY_MS)
   delay(DELAY_MS);
   digitalWrite(PIN,LOW);
 }
+
+//*****************************************************************************************************************************
+// Fade LED 
+
+void fadeLED(int pin)
+{
+  int brightness = 0;
+  int fadeAmount = 5;
+  for(int i=0; i<510; i=i+5)  // 255 is max analog value, 255 * 2 = 510
+  {
+    analogWrite(pin, brightness);  // pin 9 is LED
+  
+    // change the brightness for next time through the loop:
+    brightness = brightness + fadeAmount;  // increment brightness level by 5 each time (0 is lowest, 255 is highest)
+  
+    // reverse the direction of the fading at the ends of the fade:
+    if (brightness <= 0 || brightness >= 255)
+    {
+      fadeAmount = -fadeAmount;
+    }
+    // wait for 20-30 milliseconds to see the dimming effect
+    delay(10);
+  }
+  digitalWrite(pin, LOW); // switch LED off at the end of fade
+}
+
+//*****************************************************************************************************************************
