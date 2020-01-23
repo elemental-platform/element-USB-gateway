@@ -1,7 +1,7 @@
 // Elemental USB Gateway firmware
 // Developed by AKstudios
 
-// Updated on 01/22/2020
+// Updated on 01/23/2020
 
 //*****************************************************************************************************************************
 // libraries in use
@@ -13,7 +13,7 @@
 //*****************************************************************************************************************************
 // configurable global variables
 
-#define ENCRYPTKEY    "Tt-Mh=SQ#dn#JY3_" //has to be same 16 characters/bytes on all nodes, not more not less!
+#define ENCRYPTKEY    "RgUjXn2r5u8x/A?D" //has to be same 16 characters/bytes on all nodes, not more not less!
 #define NODEID        1
 #define NETWORKID     1
 #define FREQUENCY     RF69_915MHZ //(others: RF69_433MHZ, RF69_868MHZ)
