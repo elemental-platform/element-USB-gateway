@@ -65,32 +65,31 @@ void loop()
         data[i] = (char)radio.DATA[i];
     }
 
-    data[sizeof(data)] = 0; // add null character to the end of data array
-
     if (radio.ACKRequested())
     {
       radio.sendACK();
-
-      dtostrf(nodeID, 1, 0, _i);  // convert decimal to string; 1 is minimal width, 0 is decimal precision
-      dtostrf(rssi, 3, 0, _rssi);
-
-      dataPacket[0] = 0;  // first value of dataPacket should be a 0 (null) to clear it
-      strcat(dataPacket, "i:");
-      strcat(dataPacket, _i);  // append node ID
-      strcat(dataPacket, ",");
-      strcat(dataPacket, data);  // append actual data
-      strcat(dataPacket, ",r:");
-      strcat(dataPacket, _rssi); // append RSSI
-
-      Serial.println(dataPacket); // send packet over serial
-      Blink(LED,5);   // blink LED to indicate packet receive and send + give delay to let serial complete sending
-
-      // clear all char arrays
-      memset(data, 0, sizeof data);
-      memset(dataPacket, 0, sizeof dataPacket);
-      memset(_i, 0, sizeof _i);
-      memset(_rssi, 0, sizeof _rssi);
     }
+    
+    data[sizeof(data)] = 0; // add null character to the end of data array
+    dtostrf(nodeID, 1, 0, _i);  // convert decimal to string; 1 is minimal width, 0 is decimal precision
+    dtostrf(rssi, 3, 0, _rssi);
+
+    dataPacket[0] = 0;  // first value of dataPacket should be a 0 (null) to clear it
+    strcat(dataPacket, "i:");
+    strcat(dataPacket, _i);  // append node ID
+    strcat(dataPacket, ",");
+    strcat(dataPacket, data);  // append actual data
+    strcat(dataPacket, ",r:");
+    strcat(dataPacket, _rssi); // append RSSI
+
+    Serial.println(dataPacket); // send packet over serial
+    Blink(LED,3);   // blink LED to indicate packet receive and send + give delay to let serial complete sending
+
+    // clear all char arrays
+    memset(data, 0, sizeof data);
+    memset(dataPacket, 0, sizeof dataPacket);
+    memset(_i, 0, sizeof _i);
+    memset(_rssi, 0, sizeof _rssi);
   }
 }
 
