@@ -1,7 +1,5 @@
 // Elemental USB Gateway firmware
-// Developed by AKstudios
-
-// Updated on 01/23/2020
+// Updated on 01/29/2020
 
 //*****************************************************************************************************************************
 // libraries in use
@@ -13,13 +11,14 @@
 //*****************************************************************************************************************************
 // configurable global variables
 
-#define ENCRYPTKEY    "RgUjXn2r5u8x/A?D" //has to be same 16 characters/bytes on all nodes, not more not less!
-#define NODEID        1
-#define NETWORKID     1
-#define FREQUENCY     RF69_915MHZ //(others: RF69_433MHZ, RF69_868MHZ)
-#define IS_RFM69HW    //uncomment only for RFM69HW! Leave out if you have RFM69W!
-#define LED           9
-#define SERIAL_BAUD   115200
+#define ENCRYPTKEY      "Tt-Mh=SQ#dn#JY3_" //has to be same 16 characters/bytes on all nodes, not more not less!
+#define NODEID          1
+#define NETWORKID       1
+#define FREQUENCY       RF69_915MHZ //(others: RF69_433MHZ, RF69_868MHZ)
+#define FREQUENCY_EXACT 905000000   // change the frequency in areas of interference (default: 915MHz)
+#define IS_RFM69HW      //uncomment only for RFM69HW! Leave out if you have RFM69W!
+#define LED             9
+#define SERIAL_BAUD     115200
 
 // other global variables and objects
 RFM69 radio;
@@ -37,10 +36,13 @@ void setup()
   Serial.begin(SERIAL_BAUD);
 
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
+  radio.encrypt(ENCRYPTKEY);
 #ifdef IS_RFM69HW
   radio.setHighPower(); //uncomment only for RFM69HW!
 #endif
-  radio.encrypt(ENCRYPTKEY);
+#ifdef FREQUENCY_EXACT
+  radio.setFrequency(FREQUENCY_EXACT); //set frequency to some custom frequency
+#endif
   //flash.initialize();
 
   fadeLED(LED);
